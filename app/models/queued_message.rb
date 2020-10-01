@@ -35,7 +35,8 @@ class QueuedMessage < ApplicationRecord
   before_create :allocate_ip_address
   after_commit :queue, :on => :create
 
-  scope :unlocked, -> { where(:locked_at => nil) }
+  #scope :unlocked, -> { where(:locked_at => nil) }
+  scope :unlocked, -> { where("locked_at IS NULL OR locked_at <= ?", 60.seconds.from_now) }
   scope :retriable, -> { where("retry_after IS NULL OR retry_after <= ?", 30.seconds.from_now) }
 
   def retriable?
